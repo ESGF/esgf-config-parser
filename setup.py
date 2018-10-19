@@ -22,5 +22,4 @@ setup(name='ESGConfigParser',
                    'Operating System :: Unix',
                    'Programming Language :: Python',
                    'Topic :: Scientific/Engineering',
-                   'Topic :: Software Development :: Build Tools']
-      )
+                   'Topic :: Software Development :: Build Tools'])
