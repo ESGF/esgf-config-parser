@@ -222,7 +222,7 @@ class SectionParser(ConfigParser):
         # Translate all patterns matching %(name)s
         pattern = re.sub(re.compile(r'%\(([^()]*)\)s'), r'(?P<\1>[\w.-]+)', pattern)
         # Add ending version pattern if needed and missing
-        if add_ending_version and 'version' not in pattern:
+        if add_ending_version and '<version>' not in pattern:
             pattern = '{}{}(?P<version>v[\d]+|latest)$'.format(pattern, sep)
         # Add ending filename pattern if needed and missing
         if add_ending_filename and 'filename' not in pattern:
