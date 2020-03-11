@@ -2,7 +2,7 @@ export VERSION="0.1.18"
 export BUILD_NAME="0"
 export CONDA_BLD_PATH=~/conda-bld
 USER="e3sm"
-PLATFORM="linux-64"
+PLATFORM="noarch"
 PKG="esgf-config-parser"
 
 if [ -d $CONDA_BLD_PATH ]; then
