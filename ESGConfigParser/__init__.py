@@ -10,7 +10,8 @@
 import os
 import re
 import string
-from configparser import ConfigParser, _Chainmap, DEFAULTSECT, MAX_INTERPOLATION_DEPTH
+from configparser import ConfigParser, DEFAULTSECT, MAX_INTERPOLATION_DEPTH
+from collections import ChainMap
 
 from .custom_exceptions import *
 
@@ -89,7 +90,7 @@ class SectionParser(ConfigParser):
         if variables:
             for key, value in list(variables.items()):
                 vardict[self.optionxform(key)] = value
-        d = _Chainmap(vardict, sectiondict, self._defaults)
+        d = Chainmap(vardict, sectiondict, self._defaults)
         option = self.optionxform(option)
         try:
             value = d[option]
