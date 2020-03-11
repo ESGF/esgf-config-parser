@@ -1,4 +1,4 @@
-export VERSION="0.1.17"
+export VERSION="0.1.18"
 export BUILD_NAME="0"
 export CONDA_BLD_PATH=~/conda-bld
 USER="e3sm"
