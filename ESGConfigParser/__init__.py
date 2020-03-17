@@ -90,7 +90,7 @@ class SectionParser(ConfigParser):
         if variables:
             for key, value in list(variables.items()):
                 vardict[self.optionxform(key)] = value
-        d = Chainmap(vardict, sectiondict, self._defaults)
+        d = ChainMap(vardict, sectiondict, self._defaults)
         option = self.optionxform(option)
         try:
             value = d[option]
