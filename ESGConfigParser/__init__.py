@@ -212,22 +212,22 @@ class SectionParser(ConfigParser):
         # Remove underscore from latest mandatory pattern to allow optional brackets
         pattern = re.sub(re.compile(r'%\(([^()]*)\)s\('), r'(?P<\1>[^-_]+)(', pattern)
         # Translate all patterns matching %(digit)s
-        pattern = re.sub(re.compile(r'%\((digit)\)s'), r'[\d]+', pattern)
+        pattern = re.sub(re.compile(r'%\((digit)\)s'), r'[\\d]+', pattern)
         # Translate all patterns matching %(string)s
-        pattern = re.sub(re.compile(r'%\((string)\)s'), r'[\w-]+', pattern)
+        pattern = re.sub(re.compile(r'%\((string)\)s'), r'[\\w-]+', pattern)
         # Translate %(root)s variable if exists but not required. Can include the project name.
         if re.compile(r'%\((root)\)s').search(pattern):
-            pattern = re.sub(re.compile(r'%\((root)\)s'), r'(?P<\1>[\w./-]+)', pattern)
+            pattern = re.sub(re.compile(r'%\((root)\)s'), r'(?P<\1>[\\w./-]+)', pattern)
         # Constraint on %(version)s number
-        pattern = re.sub(re.compile(r'%\((version)\)s'), r'(?P<\1>v[\d]+|latest)', pattern)
+        pattern = re.sub(re.compile(r'%\((version)\)s'), r'(?P<\1>v[\\d]+|latest)', pattern)
         # Translate all patterns matching %(name)s
-        pattern = re.sub(re.compile(r'%\(([^()]*)\)s'), r'(?P<\1>[\w.-]+)', pattern)
+        pattern = re.sub(re.compile(r'%\(([^()]*)\)s'), r'(?P<\1>[\\w.-]+)', pattern)
         # Add ending version pattern if needed and missing
         if add_ending_version and 'version' not in pattern:
-            pattern = r'{}{}(?P<version>v[\d]+|latest)$'.format(pattern, sep)
+            pattern = r'{}{}(?P<version>v[\\d]+|latest)$'.format(pattern, sep)
         # Add ending filename pattern if needed and missing
         if add_ending_filename and 'filename' not in pattern:
-            pattern = r'{}{}(?P<filename>[\w.-]+)$'.format(pattern, sep)
+            pattern = r'{}{}(?P<filename>[\\w.-]+)$'.format(pattern, sep)
         return pattern
 
     def get_facets(self, option, ignored=None):
