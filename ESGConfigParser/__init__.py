@@ -10,9 +10,10 @@
 import os
 import re
 import string
-from ConfigParser import ConfigParser, _Chainmap, DEFAULTSECT, MAX_INTERPOLATION_DEPTH
+from configparser import ConfigParser, DEFAULTSECT, MAX_INTERPOLATION_DEPTH
+from collections import ChainMap
 
-from custom_exceptions import *
+from .custom_exceptions import *
 
 
 class SectionParser(ConfigParser):
@@ -59,13 +60,13 @@ class SectionParser(ConfigParser):
         if self._defaults:
             fp.write("[%s]\n" % DEFAULTSECT)
             fp.write("\n")
-            for (key, value) in self._defaults.items():
+            for (key, value) in list(self._defaults.items()):
                 fp.write("%s = %s\n" % (key, str(value)))
                 fp.write("\n")
         for section in self._sections:
             fp.write("[%s]\n" % section)
             fp.write("\n")
-            for (key, value) in self._sections[section].items():
+            for (key, value) in list(self._sections[section].items()):
                 if key == "__name__":
                     continue
                 if (value is not None) or (self._optcre == self.OPTCRE):
@@ -87,9 +88,9 @@ class SectionParser(ConfigParser):
         # Update with the entry specific variables
         vardict = {}
         if variables:
-            for key, value in variables.items():
+            for key, value in list(variables.items()):
                 vardict[self.optionxform(key)] = value
-        d = _Chainmap(vardict, sectiondict, self._defaults)
+        d = ChainMap(vardict, sectiondict, self._defaults)
         option = self.optionxform(option)
         try:
             value = d[option]
@@ -173,9 +174,9 @@ class SectionParser(ConfigParser):
 
         """
         if default:
-            return self._sections.keys() + ['DEFAULT']
+            return list(self._sections.keys()) + ['DEFAULT']
         else:
-            return self._sections.keys()
+            return list(self._sections.keys())
 
     def options(self, defaults=True):
         """
@@ -187,7 +188,7 @@ class SectionParser(ConfigParser):
             opts.update(self._defaults)
         if '__name__' in opts:
             del opts['__name__']
-        return opts.keys()
+        return list(opts.keys())
 
     def translate(self, option, add_ending_filename=False, add_ending_version=False, sep='/'):
         """
@@ -211,22 +212,22 @@ class SectionParser(ConfigParser):
         # Remove underscore from latest mandatory pattern to allow optional brackets
         pattern = re.sub(re.compile(r'%\(([^()]*)\)s\('), r'(?P<\1>[^-_]+)(', pattern)
         # Translate all patterns matching %(digit)s
-        pattern = re.sub(re.compile(r'%\((digit)\)s'), r'[\d]+', pattern)
+        pattern = re.sub(re.compile(r'%\((digit)\)s'), r'[\\d]+', pattern)
         # Translate all patterns matching %(string)s
-        pattern = re.sub(re.compile(r'%\((string)\)s'), r'[\w-]+', pattern)
+        pattern = re.sub(re.compile(r'%\((string)\)s'), r'[\\w-]+', pattern)
         # Translate %(root)s variable if exists but not required. Can include the project name.
         if re.compile(r'%\((root)\)s').search(pattern):
-            pattern = re.sub(re.compile(r'%\((root)\)s'), r'(?P<\1>[\w./-]+)', pattern)
+            pattern = re.sub(re.compile(r'%\((root)\)s'), r'(?P<\1>[\\w./-]+)', pattern)
         # Constraint on %(version)s number
-        pattern = re.sub(re.compile(r'%\((version)\)s'), r'(?P<\1>v[\d]+|latest)', pattern)
+        pattern = re.sub(re.compile(r'%\((version)\)s'), r'(?P<\1>v[\\d]+|latest)', pattern)
         # Translate all patterns matching %(name)s
-        pattern = re.sub(re.compile(r'%\(([^()]*)\)s'), r'(?P<\1>[\w.-]+)', pattern)
+        pattern = re.sub(re.compile(r'%\(([^()]*)\)s'), r'(?P<\1>[\\w.-]+)', pattern)
         # Add ending version pattern if needed and missing
         if add_ending_version and 'version' not in pattern:
-            pattern = '{}{}(?P<version>v[\d]+|latest)$'.format(pattern, sep)
+            pattern = r'{}{}(?P<version>v[\\d]+|latest)$'.format(pattern, sep)
         # Add ending filename pattern if needed and missing
         if add_ending_filename and 'filename' not in pattern:
-            pattern = '{}{}(?P<filename>[\w.-]+)$'.format(pattern, sep)
+            pattern = r'{}{}(?P<filename>[\\w.-]+)$'.format(pattern, sep)
         return pattern
 
     def get_facets(self, option, ignored=None):
@@ -252,7 +253,7 @@ class SectionParser(ConfigParser):
         :raises Error: If the value is missing in the corresponding options list
 
         """
-        for key in pairs.keys():
+        for key in list(pairs.keys()):
             # Do the check only if value exists (i.e.,not None)
             if pairs[key]:
                 options, option = self.get_options(key)
@@ -330,9 +331,9 @@ class SectionParser(ConfigParser):
             return list()
         try:
             if field_id:
-                options = [tuple(option)[field_id - 1] for option in map(lambda x: split_line(x), option_lines)]
+                options = [tuple(option)[field_id - 1] for option in [split_line(x) for x in option_lines]]
             else:
-                options = [tuple(option) for option in map(lambda x: split_line(x), option_lines)]
+                options = [tuple(option) for option in [split_line(x) for x in option_lines]]
         except:
             raise MisdeclaredOption(option)
         return options
@@ -355,7 +356,7 @@ class SectionParser(ConfigParser):
             raise NoConfigOption(option)
         options_lines = split_line(self.get(option), sep='\n')
         try:
-            options = dict((k, v) for k, v in map(lambda x: split_line(x), options_lines[1:]))
+            options = dict((k, v) for k, v in [split_line(x) for x in options_lines[1:]])
         except:
             raise MisdeclaredOption(option)
         try:
@@ -383,9 +384,9 @@ class SectionParser(ConfigParser):
             key = option.split('_map')[0]
         from_keys, to_keys, value_map = split_map(self.get(option))
         if key in from_keys:
-            return list(set([value[from_keys.index(key)] for value in value_map.keys()]))
+            return list(set([value[from_keys.index(key)] for value in list(value_map.keys())]))
         else:
-            return list(set([value[to_keys.index(key)] for value in value_map.values()]))
+            return list(set([value[to_keys.index(key)] for value in list(value_map.values())]))
 
     def get_option_from_map(self, option, pairs):
         """
@@ -473,7 +474,7 @@ def split_line(line, sep='|'):
     :rtype: *list*
 
     """
-    fields = map(string.strip, line.split(sep))
+    fields = list(map(string.strip, line.split(sep)))
     return fields
 
 
@@ -506,7 +507,7 @@ def lengths(fields):
     :rtype: *tuple*
 
     """
-    return tuple([max(map(len, f)) for f in zip(*fields)])
+    return tuple([max(list(map(len, f))) for f in zip(*fields)])
 
 
 def split_record(option, sep='|'):
@@ -562,10 +563,10 @@ def split_map(option, sep='|'):
     for record in lines[1:]:
         if record == '':
             continue
-        fields = map(string.strip, record.split(sep))
+        fields = list(map(string.strip, record.split(sep)))
         from_values = tuple(fields[0:n_from])
         to_values = tuple(fields[n_from:])
-        if from_values not in result.keys():
+        if from_values not in list(result.keys()):
             result[from_values] = to_values
         else:
             raise DuplicatedMapEntry(fields, option)
