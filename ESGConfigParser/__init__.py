@@ -10,9 +10,9 @@
 import os
 import re
 import string
-from ConfigParser import ConfigParser, _Chainmap, DEFAULTSECT, MAX_INTERPOLATION_DEPTH
+from configparser import ConfigParser, _ChainMap, DEFAULTSECT, MAX_INTERPOLATION_DEPTH
 
-from custom_exceptions import *
+from .custom_exceptions import *
 
 
 class SectionParser(ConfigParser):
