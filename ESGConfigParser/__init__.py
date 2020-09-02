@@ -89,7 +89,7 @@ class SectionParser(ConfigParser):
         if variables:
             for key, value in variables.items():
                 vardict[self.optionxform(key)] = value
-        d = _Chainmap(vardict, sectiondict, self._defaults)
+        d = _ChainMap(vardict, sectiondict, self._defaults)
         option = self.optionxform(option)
         try:
             value = d[option]
@@ -173,9 +173,9 @@ class SectionParser(ConfigParser):
 
         """
         if default:
-            return self._sections.keys() + ['DEFAULT']
+            return list(self._sections.keys()) + ['DEFAULT']
         else:
-            return self._sections.keys()
+            return list(self._sections.keys())
 
     def options(self, defaults=True):
         """
@@ -473,7 +473,7 @@ def split_line(line, sep='|'):
     :rtype: *list*
 
     """
-    fields = map(string.strip, line.split(sep))
+    fields = [string.strip() for string in line.split(sep)]
     return fields
 
 
@@ -562,7 +562,7 @@ def split_map(option, sep='|'):
     for record in lines[1:]:
         if record == '':
             continue
-        fields = map(string.strip, record.split(sep))
+        fields = [x.strip() for x in record.split(sep)]
         from_values = tuple(fields[0:n_from])
         to_values = tuple(fields[n_from:])
         if from_values not in result.keys():
