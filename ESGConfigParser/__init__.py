@@ -10,20 +10,21 @@
 import os
 import re
 import string
-from ConfigParser import ConfigParser, _Chainmap, DEFAULTSECT, MAX_INTERPOLATION_DEPTH
+from configparser import ConfigParser, DEFAULTSECT, MAX_INTERPOLATION_DEPTH
+from collections import ChainMap
 
-from custom_exceptions import *
+from .custom_exceptions import *
 
 
 class SectionParser(ConfigParser):
     """
-    Custom ConfigParser class to parse ESGF .ini files from a source directory.
+    Custom configparser class to parse ESGF .ini files from a source directory.
     Parse a configuration section (mandatory).
 
     """
 
     def __init__(self, section, directory=None):
-        ConfigParser.__init__(self)
+        configparser.__init__(self)
         self.reset()
         ConfigException.SECTION = section
         self.section = section
@@ -89,7 +90,7 @@ class SectionParser(ConfigParser):
         if variables:
             for key, value in variables.items():
                 vardict[self.optionxform(key)] = value
-        d = _Chainmap(vardict, sectiondict, self._defaults)
+        d = Chainmap(vardict, sectiondict, self._defaults)
         option = self.optionxform(option)
         try:
             value = d[option]
