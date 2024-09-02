@@ -10,9 +10,16 @@
 import os
 import re
 import string
-from ConfigParser import ConfigParser, _Chainmap, DEFAULTSECT, MAX_INTERPOLATION_DEPTH
 
-from custom_exceptions import *
+try:
+    from configparser import ConfigParser, DEFAULTSECT, MAX_INTERPOLATION_DEPTH
+except ImportError:
+    from ConfigParser import ConfigParser, DEFAULTSECT, MAX_INTERPOLATION_DEPTH    
+
+try:
+    from .custom_exceptions import *
+except ImportError:
+    from custom_exceptions import *
 
 
 class SectionParser(ConfigParser):
@@ -89,16 +96,20 @@ class SectionParser(ConfigParser):
         if variables:
             for key, value in variables.items():
                 vardict[self.optionxform(key)] = value
-        d = _Chainmap(vardict, sectiondict, self._defaults)
         option = self.optionxform(option)
-        try:
-            value = d[option]
-        except KeyError:
+
+        for d in vardict, sectiondict, self._defaults:
+            if option in d:
+                value = d[option]
+                break
+        else:
             raise NoConfigOption(option)
+        
         if raw or value is None:
             return value
         else:
             return self._interpolate(self.section, option, value, d)
+
 
     def has_option(self, option, section=None):
         """
